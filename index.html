@@ -63,73 +63,80 @@
     sessionStorage.setItem('gifQueue', JSON.stringify(gifQueue));
     document.querySelector(".overlay").style.backgroundImage = `url('${nextGif}')`;
 
-    // Skin conversion logic
-    document.getElementById('convertBtn').addEventListener('click', () => {
-      const input = document.getElementById('skinInput');
-      const status = document.getElementById('status');
-      const result = document.getElementById('result');
+document.getElementById('convertBtn').addEventListener('click', () => {
+  const input = document.getElementById('skinInput');
+  const status = document.getElementById('status');
+  const result = document.getElementById('result');
 
-      if (!input.files || input.files.length === 0) {
-        status.textContent = "Please select a skin.";
+  if (!input.files || input.files.length === 0) {
+    status.textContent = "Please select a skin.";
+    status.className = "";
+    return;
+  }
+
+  const file = input.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const img = new Image();
+    img.onload = function () {
+      if (img.width !== 64 || img.height !== 32) {
+        status.textContent = "Skin must be 64x32!";
         status.className = "";
         return;
       }
 
-      const file = input.files[0];
-      const reader = new FileReader();
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
 
-      reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-          if (img.width !== 64 || img.height !== 32) {
-            status.textContent = "Skin must be 64x32!";
-            status.className = "";
-            return;
-          }
+      // Clear with full transparency
+      ctx.clearRect(0, 0, 64, 64);
 
-          const canvas = document.createElement('canvas');
-          canvas.width = 64;
-          canvas.height = 64;
-          const ctx = canvas.getContext('2d');
+      // Draw original 64x32 skin
+      ctx.drawImage(img, 0, 0);
 
-          // Fill blank transparent base
-          ctx.clearRect(0, 0, 64, 64);
+      // === Copy right leg to left leg ===
+      // Left Leg (bottom): copy from right leg (lower)
+      ctx.drawImage(canvas, 4, 16, 4, 4, 20, 48, 4, 4); // Top
+      ctx.drawImage(canvas, 8, 16, 4, 4, 24, 48, 4, 4); // Bottom
+      ctx.drawImage(canvas, 0, 20, 4, 12, 20, 52, 4, 12); // Outer
+      ctx.drawImage(canvas, 4, 20, 4, 12, 24, 52, 4, 12); // Front
+      ctx.drawImage(canvas, 8, 20, 4, 12, 28, 52, 4, 12); // Inner
+      ctx.drawImage(canvas, 12, 20, 4, 12, 16, 52, 4, 12); // Back
 
-          // Draw original 64x32 skin at top
-          ctx.drawImage(img, 0, 0);
+      // === Copy right arm to left arm ===
+      ctx.drawImage(canvas, 44, 16, 4, 4, 36, 48, 4, 4); // Top
+      ctx.drawImage(canvas, 48, 16, 4, 4, 40, 48, 4, 4); // Bottom
+      ctx.drawImage(canvas, 40, 20, 4, 12, 36, 52, 4, 12); // Outer
+      ctx.drawImage(canvas, 44, 20, 4, 12, 40, 52, 4, 12); // Front
+      ctx.drawImage(canvas, 48, 20, 4, 12, 44, 52, 4, 12); // Inner
+      ctx.drawImage(canvas, 52, 20, 4, 12, 32, 52, 4, 12); // Back
 
-          // Duplicate old layers into new format
-          // Left arm
-          ctx.drawImage(canvas, 44, 20, 4, 12, 36, 52, 4, 12);
-          ctx.drawImage(canvas, 40, 20, 4, 12, 40, 52, 4, 12);
+      const outImg = new Image();
+      outImg.src = canvas.toDataURL("image/png");
 
-          // Right leg
-          ctx.drawImage(canvas, 4, 20, 4, 12, 20, 52, 4, 12);
-          ctx.drawImage(canvas, 0, 20, 4, 12, 24, 52, 4, 12);
+      result.innerHTML = '';
+      result.appendChild(outImg);
 
-          // Output
-          const outImg = new Image();
-          outImg.src = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = outImg.src;
+      link.download = "converted_skin.png";
+      link.textContent = "Download Converted Skin";
+      link.style.display = "block";
+      link.style.marginTop = "10px";
+      result.appendChild(link);
 
-          result.innerHTML = '';
-          result.appendChild(outImg);
+      status.textContent = "Conversion complete!";
+      status.className = "success";
+    };
+    img.src = e.target.result;
+  };
 
-          const link = document.createElement("a");
-          link.href = outImg.src;
-          link.download = "converted_skin.png";
-          link.textContent = "Download Converted Skin";
-          link.style.display = "block";
-          link.style.marginTop = "10px";
-          result.appendChild(link);
+  reader.readAsDataURL(file);
+});
 
-          status.textContent = "Conversion complete!";
-          status.className = "success";
-        };
-        img.src = e.target.result;
-      };
-
-      reader.readAsDataURL(file);
-    });
   </script>
 </body>
 </html>
