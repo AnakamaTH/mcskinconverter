@@ -92,7 +92,6 @@ document.getElementById('convertBtn').addEventListener('click', () => {
       link.style.marginTop = "10px";
       result.appendChild(link);
 
-      status.textContent = "Conversion complete!";
-      status.className =
+
 ::contentReference[oaicite:47]{index=47}
  
