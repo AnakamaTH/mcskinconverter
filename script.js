@@ -11,6 +11,7 @@ const gifs = [
   "https://i.gifer.com/1toU.gif"
 ];
 
+// Rotate GIFs
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -22,7 +23,6 @@ function shuffleArray(arr) {
 if (!sessionStorage.getItem('gifQueue') || JSON.parse(sessionStorage.getItem('gifQueue')).length === 0) {
   sessionStorage.setItem('gifQueue', JSON.stringify(shuffleArray([...gifs])));
 }
-
 const gifQueue = JSON.parse(sessionStorage.getItem('gifQueue'));
 const nextGif = gifQueue.shift();
 sessionStorage.setItem('gifQueue', JSON.stringify(gifQueue));
@@ -55,28 +55,25 @@ document.getElementById('convertBtn').addEventListener('click', () => {
       canvas.width = 64;
       canvas.height = 64;
       const ctx = canvas.getContext('2d');
-
-      // Start with transparent canvas
       ctx.clearRect(0, 0, 64, 64);
-
-      // Copy original skin
       ctx.drawImage(img, 0, 0);
 
-      // === Add left leg (copy right leg) ===
-      ctx.drawImage(canvas, 4, 16, 4, 4, 20, 48, 4, 4);  // Top
-      ctx.drawImage(canvas, 8, 16, 4, 4, 24, 48, 4, 4);  // Bottom
-      ctx.drawImage(canvas, 0, 20, 4, 12, 20, 52, 4, 12); // Outer
-      ctx.drawImage(canvas, 4, 20, 4, 12, 24, 52, 4, 12); // Front
-      ctx.drawImage(canvas, 8, 20, 4, 12, 28, 52, 4, 12); // Inner
-      ctx.drawImage(canvas,12, 20, 4, 12, 16, 52, 4, 12); // Back
+      // Properly extend to 64x64 (copy right leg/arm to left leg/arm)
+      // Left Leg (bottom layer only)
+      ctx.drawImage(canvas, 4, 16, 4, 4, 20, 48, 4, 4);  // top
+      ctx.drawImage(canvas, 8, 16, 4, 4, 24, 48, 4, 4);  // bottom
+      ctx.drawImage(canvas, 4, 20, 4, 12, 20, 52, 4, 12); // front
+      ctx.drawImage(canvas, 8, 20, 4, 12, 24, 52, 4, 12); // back
+      ctx.drawImage(canvas, 0, 20, 4, 12, 16, 52, 4, 12); // left
+      ctx.drawImage(canvas, 12, 20, 4, 12, 28, 52, 4, 12); // right
 
-      // === Add left arm (copy right arm) ===
-      ctx.drawImage(canvas, 44, 16, 4, 4, 36, 48, 4, 4);  // Top
-      ctx.drawImage(canvas, 48, 16, 4, 4, 40, 48, 4, 4);  // Bottom
-      ctx.drawImage(canvas, 40, 20, 4, 12, 36, 52, 4, 12); // Outer
-      ctx.drawImage(canvas, 44, 20, 4, 12, 40, 52, 4, 12); // Front
-      ctx.drawImage(canvas, 48, 20, 4, 12, 44, 52, 4, 12); // Inner
-      ctx.drawImage(canvas, 52, 20, 4, 12, 32, 52, 4, 12); // Back
+      // Left Arm (bottom layer only)
+      ctx.drawImage(canvas, 44, 16, 4, 4, 36, 48, 4, 4);  // top
+      ctx.drawImage(canvas, 48, 16, 4, 4, 40, 48, 4, 4);  // bottom
+      ctx.drawImage(canvas, 44, 20, 4, 12, 36, 52, 4, 12); // front
+      ctx.drawImage(canvas, 48, 20, 4, 12, 40, 52, 4, 12); // back
+      ctx.drawImage(canvas, 40, 20, 4, 12, 32, 52, 4, 12); // left
+      ctx.drawImage(canvas, 52, 20, 4, 12, 44, 52, 4, 12); // right
 
       const outImg = new Image();
       outImg.src = canvas.toDataURL("image/png");
